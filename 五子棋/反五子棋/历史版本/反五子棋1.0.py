@@ -147,8 +147,8 @@ class OppositeGobangUI:
         # 绘制棋盘
         self.board(length)
         self.cv.bind("<Button-1>", self.call_left)
-        text = '''反五子棋游戏。\n 1 五子连珠的一方 输！\n 2 黑棋先行，交替落子。
- 3 可以在空白处落子。\n 4 点击对方棋子移动到目标点，并在原位置落子。'''
+        text = '反五子棋游戏。\n 1 五子连珠的一方 输！\n 2 黑棋先行，交替落子。\n'\
+            ' 3 可以在空白处落子。\n 4 点击对方棋子移动到目标点，并在原位置落子。'
         messagebox.showinfo(title='游戏规则', message = text)
 
     def board(self, length):
@@ -220,5 +220,6 @@ class OppositeGobangUI:
 
 if __name__ == '__main__':
     root = tk.Tk()
+    root.title('反五子棋')
     gb = OppositeGobangUI(root)
     tk.mainloop()
