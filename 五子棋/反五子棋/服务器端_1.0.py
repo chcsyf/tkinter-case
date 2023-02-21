@@ -1,3 +1,4 @@
+#coding=UTF-8
 import socket, threading, struct, random, json
 
 class OppositeGobang:
@@ -8,7 +9,7 @@ class OppositeGobang:
         self.move_pts = []      # 可移动到的位置
         self.move_origin = None # 移动的原点
 
-    def go(self, player:1|2, pt:tuple[int]) -> 0|1|2|3|4:
+    def go(self, player, pt):
         ''' 落子和输赢判断
             输入：player：黑(1)、白(2)
                   pt：落子位置(0-15, 0-15)
@@ -46,7 +47,7 @@ class OppositeGobang:
                 else:
                     return (3,)
 
-    def moveable_pts(self, pt:tuple[int]):
+    def moveable_pts(self, pt):
         '''可以移动 的位置'''
         self.move_pts = []
         r,c = pt
@@ -84,7 +85,7 @@ class OppositeGobang:
             self.move_pts.append((r2,c2))
             r2 += 1; c2 -= 1
 
-    def isLose(self, player:1|2, pt:tuple[int]) -> 0|1|2:
+    def isLose(self, player, pt):
         ''' 输赢判断
             输入：player：黑(1)、白(2)
                   pt：落子位置(0-15, 0-15)
@@ -122,17 +123,17 @@ class OppositeGobang:
 
         return (0,)
 
-    def __getitem__(self, it:tuple[int]):
+    def __getitem__(self, it):
         return self.data[it[0]][it[1]]
 
-    def __setitem__(self, it:tuple[int], value:int):
+    def __setitem__(self, it, value):
         self.data[it[0]][it[1]] = value
 
 class MyServer:
     def __init__(self):
         # 初始化socket
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind(('127.0.0.1', 6688))
+        self.server.bind(('', 6688))
         # 设置最大监听数
         self.server.listen(10)
         # 保存每一个客户端的连接和身份信息
@@ -283,5 +284,6 @@ class MyServer:
         self.send_msg(pl2, f'put_{n}_{pts}')
         self.game_player[room] = op
 
-my_server = MyServer()
-my_server.run()
+if __name__ == '__main__':
+    my_server = MyServer()
+    my_server.run()

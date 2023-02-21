@@ -347,15 +347,20 @@ class OppositeGobangUI:
             self.creat_client()
 
     def creat_client(self):
-        for i in range(4):
-            try:
-                self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.client.bind(('127.0.0.1', random.randint(7000, 39999)))
-                self.client.connect(('127.0.0.1', 6688))
-                if self.recv() == 'success':
-                    break
-            except:
-                pass
+        # for i in range(4):
+        #     try:
+        #         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #         # self.client.bind(('127.0.0.1', random.randint(7000, 39999)))
+        #         # self.client.connect(('127.0.0.1', 6688))
+        #         self.client.connect(('120.53.124.56', 6688))
+        #         if self.recv() == 'success':
+        #             break
+        #     except:
+        #         pass
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client.connect(('120.53.124.56', 6688))
+        print(self.recv())
+
         if self.recv() == '请输入姓名':
             win = tk.Toplevel(self.canvas)
             paddict = {'padx':20, 'pady':5}
