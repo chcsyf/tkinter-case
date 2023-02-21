@@ -350,9 +350,7 @@ class OppositeGobangUI:
         # for i in range(4):
         #     try:
         #         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #         # self.client.bind(('127.0.0.1', random.randint(7000, 39999)))
-        #         # self.client.connect(('127.0.0.1', 6688))
-        #         self.client.connect(('120.53.124.56', 6688))
+        #         self.client.connect(('127', 6688))
         #         if self.recv() == 'success':
         #             break
         #     except:
