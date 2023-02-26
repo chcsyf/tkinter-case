@@ -47,15 +47,16 @@ class MainFrame:
     def info_win(self):
         '''信息框架'''
         win = self.info_frame
-        pads = {'padx':10, 'pady':9}
+        pads = {'padx':10, 'pady':7}
         font = ('微软雅黑', 10)
 
         # 基本参数
-        self.board_data  = {'size':[None,None],'ids':None}
+        self.board_data = {'size':[None,None], 'ids':None, 'color':None}
+        self.chess_data = {'num':0, 'name':None, 'road':None, 'pts':None}
 
         if self.mode == '规则':
             # 棋盘设置
-            tk.Label(win, text='棋盘设置:', font=font).grid(row=0, column=0, **pads)
+            tk.Label(win, text='棋盘设置:', font=font, bg='orange').grid(row=0, column=0, **pads)
             tk.Label(win, text='棋盘大小:', font=font).grid(row=1, column=0, **pads)
             tk.Label(win, text='宽:', font=font).grid(row=1, column=1, **pads)
             tk.Label(win, text='高:', font=font).grid(row=1, column=3, **pads)
@@ -66,7 +67,6 @@ class MainFrame:
             et2.grid(row=1, column=4, **pads)
             tk.Button(win, text='确定', font=font, command=lambda: self.draw_board(et1, et2)
                         ).grid(row=1, column=5, **pads)
-
             tk.Label(win, text='棋盘修改:', font=font).grid(row=2, column=0, **pads)
             def board_mode(mode):
                 if self.board_mode == mode:
@@ -79,10 +79,42 @@ class MainFrame:
                         ).grid(row=2, column=1, columnspan=2, **pads)
             tk.Button(win, text='填充颜色', font=font, command=lambda: board_mode('填色')
                         ).grid(row=2, column=3, columnspan=2, **pads)
+
             # 棋子设置
-            # 落子位置、棋子名称、图标、战力（递减、循环、平均）、放置初始棋子
+            tk.Label(win, text='棋子设置:', font=font, bg='orange').grid(row=3, column=0, **pads)
+            tk.Label(win, text='棋子种类:', font=font).grid(row=4, column=0, **pads)
+            tk.Label(win, text='种', font=font).grid(row=4, column=3, **pads)
+            t3 = tk.IntVar(); t3.set(2)
+            tk.Entry(win, textvariable=t3, font=font, width=3).grid(row=4, column=2, **pads)
+            tk.Label(win, text='特征区分:', font=font).grid(row=5, column=0, **pads)
+            tk.Label(win, text='棋子名称:', font=font).grid(row=6, column=0, **pads) # 下拉设置 横竖斜 h,v,x 0-6
+            names = ['黑棋', '白棋']
+            spin1 = tk.Spinbox(win, values=names, width=8, command=lambda: ... )
+            spin1.grid(row=6, column=1, columnspan=2, **pads)
+            names = ['黑棋', '白棋']
+            tk.Label(win, text='行棋路线:', font=font).grid(row=7, column=0, **pads) # 下拉设置 横竖斜 h,v,x 0-6
+            spin2 = tk.Spinbox(win, values=names, width=8, command=lambda: ...)
+            spin2.grid(row=7, column=1, columnspan=2, **pads)
+            tk.Label(win, text='吃子规则:', font=font).grid(row=8, column=0, **pads) # 下拉设置 输入序号 -1-n
+            spin3 = tk.Spinbox(win, values=names, width=8, command=lambda: ...)
+            spin3.grid(row=8, column=1, columnspan=2, **pads)
+            tk.Label(win, text='默认布局:', font=font).grid(row=9, column=0, **pads) # 下拉设置，点击放置
+            spin4 = tk.Spinbox(win, values=names, width=8, command=lambda: ...)
+            spin4.grid(row=9, column=1, columnspan=2, **pads)
+
+            t4 = tk.IntVar(); t4.set(1)
+            tk.Radiobutton(win, text='名称', variable=t4, value=1, command=lambda:
+                self.return_chess(spin1,spin2,spin3,spin4)).grid(row=5, column=1, columnspan=2, **pads)
+            tk.Radiobutton(win, text='颜色', variable=t4, value=2, command=lambda:
+                self.return_chess(spin1,spin2,spin3,spin4)).grid(row=5, column=3, columnspan=2, **pads)
 
             # 行棋方式
+            tk.Label(win, text='行棋方式:', font=font, bg='orange').grid(row=10, column=0, **pads)
+            tk.Label(win, text='放置:', font=font).grid(row=11, column=0, **pads) # 是否吃子
+            tk.Label(win, text='删除:', font=font).grid(row=12, column=0, **pads) # 是否吃子
+            tk.Label(win, text='移动:', font=font).grid(row=13, column=0, **pads) # 是否吃子
+            tk.Label(win, text='跳跃:', font=font).grid(row=14, column=0, **pads) # 是否吃子
+
 
     def draw_board(self, *ids):
         '''绘制棋盘'''
@@ -115,6 +147,12 @@ class MainFrame:
                 self.board_panel.delete(self.board_data['ids'][x][y])
             elif self.board_mode == '填色':
                 self.board_panel.itemconfig(self.board_data['ids'][x][y], fill=self.color)
+
+    def return_chess(self,  *ids):
+        '''调整棋子'''
+        l = len(ids)
+        for i in range(l):
+            ids[i]['values'] = [f'棋子{j+1}' for j in range(l)]
 
     def menu_win(self):
         '''菜单框架'''
