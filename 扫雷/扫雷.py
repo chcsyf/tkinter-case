@@ -29,9 +29,7 @@ class SaoLeiUI:
     def __init__(self, parent):
         # 地图数据
         self.cell = 20          # 每个方块大小
-        self.map = SaoLei()     # 数据
-        self.level = 0          # 关卡
-
+        self.map = SaoLei()     # 地图数据
 
         # 界面
         self.menu(parent)       # 菜单栏
@@ -44,8 +42,7 @@ class SaoLeiUI:
         self.mine_imgs = [ImageTk.PhotoImage(img) for img in imgs1]
 
         # 新游戏
-        self.new_game()        # 默认地图
-        self.keep()            # 计时
+        self.newGame()        # 默认地图
         
 
     def menu(self, root):
@@ -53,13 +50,13 @@ class SaoLeiUI:
         self.menubar = tk.Menu(root)
         menu_new = tk.Menu(self.menubar, tearoff=False)
         grade = ('初级10x10','中级20x20','高级50x25')
-        menu_new.add_command(label=grade[0], command = lambda *e: self.new_game(0))
-        menu_new.add_command(label=grade[1], command = lambda *e: self.new_game(1))
-        menu_new.add_command(label=grade[2], command = lambda *e: self.new_game(2))
+        menu_new.add_command(label=grade[0], command = lambda *e: self.newGame(0))
+        menu_new.add_command(label=grade[1], command = lambda *e: self.newGame(1))
+        menu_new.add_command(label=grade[2], command = lambda *e: self.newGame(2))
         self.menubar.add_cascade(label="新游戏", menu=menu_new)
         root['menu'] = self.menubar
 
-    def new_game(self, difficulty=0):
+    def newGame(self, difficulty=0):
         '''新游戏'''
         # 游戏初始数据
         self.size = ((10,10),(20,20),(50,25))[difficulty]   # 尺寸
@@ -67,16 +64,18 @@ class SaoLeiUI:
         self.map.remap(*self.size, self.mine_num)           # 刷新地图数据
         self.mines = self.map.mines                         # 地图数据
         self.label_pt = ((3,9),(3,19),(9,44))[difficulty]   # 标签位置
-        self.board()                                        # 绘制地图
+        self.drawBoard()                                    # 绘制地图
         # 鼠标事件
-        self.canvas.bind("<Button-1>", self.call_lift)
-        self.canvas.bind("<Button-3>", self.call_right)
+        self.canvas.bind("<Button-1>", self.callLift)
+        self.canvas.bind("<Button-3>", self.callRight)
         # 游戏进行数据
         self.bolck_rest = self.size[0]*self.size[1]         # 剩余方块个数
         self.time = 0                                       # 用时
-        self.flags = {}                                     # 记录旗帜标记
+        self.game_end = False                               # 游戏结束
+        self.flags = {}                                     # 记录旗帜标记的点位和绘制旗帜图案
+        self.keep()                                         # 计时
 
-    def board(self):
+    def drawBoard(self):
         '''绘制地图 格子 边框：1*cell 状态栏：2*cell'''
         cell = self.cell
         # 初始化画布
@@ -99,7 +98,7 @@ class SaoLeiUI:
         self.canvas.create_text(x2,y, font="SimHei 18 bold", fill='red',
                             text=f'00{self.mine_num}'[-3:], tags='mines')
 
-    def call_lift(self, event):
+    def callLift(self, event):
         '''鼠标左键事件'''
         x = event.x//self.cell-1  # 换算坐标
         y = event.y//self.cell-3
@@ -115,16 +114,16 @@ class SaoLeiUI:
                 (y+3.5)*self.cell), image=self.type_imgs[val])
             # 清除所有0方块
             if val == 0:
-                self.clear_zero(x+1, y+1)
+                self.clearZero(x+1, y+1)
             # 判断是否获胜：如果剩余方块等于雷数量
             if self.bolck_rest == self.mine_num:
-                self.game_over('胜利！')
+                self.gameOver('胜利！')
         else:
             self.canvas.create_image(((x+1.5)*self.cell,
                             (y+3.5)*self.cell), image=self.mine_imgs[1])
-            self.game_over('失败！')
+            self.gameOver('失败！')
 
-    def clear_zero(self, x, y):
+    def clearZero(self, x, y):
         '''删除所有0方块'''
         nbo= lambda pt:[(pt[0]-1,pt[1]),(pt[0]+1,pt[1]),(pt[0],pt[1]-1),
                         (pt[0],pt[1]+1),(pt[0]-1,pt[1]-1),(pt[0]+1,pt[1]-1),
@@ -144,7 +143,7 @@ class SaoLeiUI:
                         self.canvas.create_image(((i+0.5)*self.cell,
                                 (j+2.5)*self.cell), image=self.type_imgs[val])
 
-    def call_right(self, event):
+    def callRight(self, event):
         '''鼠标右键事件'''
         x = event.x//self.cell-1  # 换算坐标
         y = event.y//self.cell-3
@@ -159,24 +158,27 @@ class SaoLeiUI:
             self.flags[(x,y)] = self.canvas.create_image(((x+1.5)*self.cell,
                             (y+3.5)*self.cell), image=self.mine_imgs[2])
         if self.mine_num<len(self.flags):
-            self.game_over('失败！')
+            self.gameOver('失败！')
             return
         mine_rest = '00'+str(self.mine_num-len(self.flags))
         self.canvas.itemconfig('mines', text=mine_rest[-3:])
 
     def keep(self):
         '''计时'''
+        if self.game_end:
+            return
         self.canvas.after(1000, self.keep)
         self.time += 1
         s = ('0'+str(self.time%60))[-2:]; m = ('0'+str(self.time//60))[-2:]
         self.canvas.itemconfig('time', text=f'{m}:{s}')
 
-    def game_over(self, text):
+    def gameOver(self, text):
         font = "SimHei 30 bold"
         x,y = self.size[0]*self.cell*0.6, self.size[1]*self.cell*0.6
         self.canvas.create_text(x, y, text=text, fill = 'red', font=font)
         self.canvas.unbind("<Button-1>")
         self.canvas.unbind("<Button-3>")
+        self.game_end = True
 
 if __name__ == '__main__':
     win = tk.Tk()
