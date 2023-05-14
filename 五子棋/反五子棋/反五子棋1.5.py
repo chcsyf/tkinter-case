@@ -378,7 +378,6 @@ class OppositeGobangUI:
 
         def sign_in(user):
             self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            # self.client.connect(('120.53.124.56', 6688))
             self.client.connect(('127.0.0.1', 6688))
             if self.recv() != 'success':
                 return
